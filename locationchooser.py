@@ -21,11 +21,11 @@ def model_creation(data):
 		for latlng in converted[hotel][1:]:
 			if minmax[hotel]['min'][0] > latlng[0]:
 				minmax[hotel]['min'][0] = latlng[0]
-			else:
+			if minmax[hotel]['max'][0] < latlng[0]:
 				minmax[hotel]['max'][0] = latlng[0]
 			if minmax[hotel]['min'][1] > latlng[1]:
 				minmax[hotel]['min'][1] = latlng[1]
-			else:
+			if minmax[hotel]['max'][1] < latlng[1]:
 				minmax[hotel]['max'][1] = latlng[1]
 	print ('Step 2: minmax array')
 	# print (minmax)
@@ -69,38 +69,39 @@ def location_in(model, location):
 	selected_hotels = []
 	lat = location[0]
 	lng = location[1]
-
+	# print(lat, lng)
 	selected = ''
 	if lat > model['latMean']:
-		latdiff = abs(model['latRight'][len(model['latRight'])-1][0] - lat)
+		latdiff = abs(model['latMean'] - lat)
+
 		if lng > model['lngMean']:
-			lngdiff = abs(model['lngRight'][len(model['lngRight'])-1][0] - lng)
+			lngdiff = abs(model['lngMean'] - lng)
 			if latdiff > lngdiff:
 				selected = 'lngRight'
 			else:
 				selected = 'latRight'
 		else:
-			lngdiff = abs(model['lngLeft'][len(model['lngLeft'])-1][0] - lng)
+			lngdiff = abs(model['lngMean'] - lng)
 			if latdiff > lngdiff:
 				selected = 'lngLeft'
 			else:
 				selected = 'latRight'
-		print(latdiff, lngdiff)
+		# print(latdiff, lngdiff)
 	else:
-		latdiff = abs(model['latLeft'][len(model['latLeft'])-1][0] - lat)
+		latdiff = abs(model['latMean'] - lat)
 		if lng > model['lngMean']:
-			lngdiff = abs(model['lngRight'][len(model['lngRight'])-1][0] - lng)
+			lngdiff = abs(model['lngMean'] - lng)
 			if latdiff > lngdiff:
 				selected = 'lngRight'
 			else:
 				selected = 'latLeft'
 		else:
-			lngdiff = abs(model['lngLeft'][len(model['lngLeft'])-1][0] - lng)
+			lngdiff = abs(model['lngMean'] - lng)
 			if latdiff > lngdiff:
 				selected = 'lngLeft'
 			else:
 				selected = 'latLeft'
-		print(latdiff, lngdiff)
+		# print(latdiff, lngdiff)
 
 	if selected == 'latLeft' or selected == 'lngLeft':
 		if selected == 'latLeft':
@@ -111,12 +112,12 @@ def location_in(model, location):
 		high = len(model[selected]) -1
 		while low != high:
 			mid = math.ceil((low + high)/2)
-			print (mid)
+			# print (mid)
 			if model[selected][mid][0] > value:
 				high = mid - 1
 			else:
 				low = mid
-		index = low
+		index = low + 1 # plus one because of slicing in next step
 
 	if selected == 'latRight' or selected == 'lngRight':
 		if selected == 'latRight':
@@ -127,26 +128,58 @@ def location_in(model, location):
 		high = len(model[selected]) - 1
 		while low != high:
 			mid = (low + high)//2 # forcing integer value
-			print (mid)
+			# print (mid)
 			if model[selected][mid][0] < value:
 				low = mid+1
 			else:
 				high = mid
 		index = low
 
-	# print(selected)
+	print(selected)
 	# print (index)
 	# print (model[selected])
 	filtered_hotels = []
 	if selected == 'latRight':
 		for item in model[selected][index:]:
-			print ( item[1] )
-			print ( model['minmax'][item[1]]['min'][0] )	
-			print ( model['minmax'][item[1]]['min'][1] )	
-			print ( model['minmax'][item[1]]['max'][0] )	
-			print ( model['minmax'][item[1]]['min'][1] )
+			# print ( item[1] )
+			# print ( model['minmax'][item[1]]['min'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )	
+			# print ( model['minmax'][item[1]]['max'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )
 
-			if model['minmax'][item[1]]['min'][0] < lat and model['minmax'][item[1]]['min'][1] < lng and model['minmax'][item[1]]['max'][1] > lng:
+			if model['minmax'][item[1]]['min'][0] <= lat and model['minmax'][item[1]]['min'][1] <= lng and model['minmax'][item[1]]['max'][1] >= lng:
+				filtered_hotels.append(item[1])
+	if selected == 'latLeft':
+		for item in model[selected][:index]:
+			# print ( item[1] )
+			# print ( model['minmax'][item[1]]['min'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )	
+			# print ( model['minmax'][item[1]]['max'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )
+
+			if model['minmax'][item[1]]['max'][0] >= lat and model['minmax'][item[1]]['min'][0] <= lng and model['minmax'][item[1]]['max'][1] >= lng:
+				filtered_hotels.append(item[1])
+
+	if selected == 'lngLeft':
+		for item in model[selected][:index]:
+			# print ( item[1] )
+			# print ( model['minmax'][item[1]]['min'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )	
+			# print ( model['minmax'][item[1]]['max'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )
+
+			if model['minmax'][item[1]]['min'][0] <= lat and model['minmax'][item[1]]['max'][0] >= lat and model['minmax'][item[1]]['max'][1] >= lng:
+				filtered_hotels.append(item[1])
+
+	if selected == 'lngRight':
+		for item in model[selected][index:]:
+			# print ( item[1] )
+			# print ( model['minmax'][item[1]]['min'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )	
+			# print ( model['minmax'][item[1]]['max'][0] )	
+			# print ( model['minmax'][item[1]]['min'][1] )
+
+			if model['minmax'][item[1]]['min'][0] <= lat and model['minmax'][item[1]]['max'][0] >= lat and model['minmax'][item[1]]['min'][1] <= lng:
 				filtered_hotels.append(item[1])
 
 	selected_hotels = filtered_hotels
@@ -167,9 +200,47 @@ model = model_creation(data)
 location = [27.6848595,85.3200855]
 location = [27.672785, 85.311146]
 location = [27.690083, 85.312722]
-location = [27.685835536199388, 85.31853675842285]
-selected_hotels = location_in(model, location)
-print (selected_hotels)
+location = [27.6728001056788, 85.31089782714844]
+for i,location in enumerate([
+  [
+    27.673380890019338,
+    85.31304359436035
+  ],
+  [
+    27.672724092775905,
+    85.31347274780273
+  ],
+  [
+    27.67117650608259,
+    85.31325817108154
+  ],
+  [
+    27.671393858414785,
+    85.308837890625
+  ],
+  [
+    27.671697913410853,
+    85.30767917633057
+  ],
+  [
+    27.673712256388665,
+    85.31046867370605
+  ],
+  [
+    27.67257206681147,
+    85.31124114990234
+  ],
+  [
+    27.67257206681147,
+    85.30875205993652
+  ],
+  [
+    27.672914124934,
+    85.31317234039307
+  ]
+]):
+	selected_hotels = location_in(model, location)
+	print ('**********************',selected_hotels)
 
 
 

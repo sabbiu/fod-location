@@ -2,7 +2,10 @@
 	#map-canvas {
 	    width: auto;
 	    height: 700px;
-	    cursor: pointer !important;
+	}
+
+	div {
+	    cursor: default !important;
 	}
 	#info {
 	    position: absolute;
@@ -17,6 +20,10 @@
     <h3>Drag or re-shape for coordinates to display below</h3>
     <div id="map-canvas">
     </div>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
     <div id="info">
     </div>
 </body>
@@ -25,7 +32,49 @@
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBP1aXitN1GttHhSxskygwtpG8kLnnbwAs&callback=initialize">
 </script>
 <script type="text/javascript">
+var prev_loc = [
+[27.67026569, 85.30712507], //zoo min
+[27.67532055, 85.31407735], //zoo max
+[27.682845335, 85.31252167], //mean
+  [
+    27.673380890019338,
+    85.31304359436035
+  ],
+  [
+    27.672724092775905,
+    85.31347274780273
+  ],
+  [
+    27.67117650608259,
+    85.31325817108154
+  ],
+  [
+    27.671393858414785,
+    85.308837890625
+  ],
+  [
+    27.671697913410853,
+    85.30767917633057
+  ],
+  [
+    27.673712256388665,
+    85.31046867370605
+  ],
+  [
+    27.67257206681147,
+    85.31124114990234
+  ],
+  [
+    27.67257206681147,
+    85.30875205993652
+  ],
+  [
+    27.672914124934,
+    85.31317234039307
+  ]
+]
 var bermudaTriangle;
+var locations = [];
 function initialize() {
     var myLatLng = new google.maps.LatLng(27.681077, 85.317378);
     var mapOptions = {
@@ -37,7 +86,14 @@ function initialize() {
     var map = new google.maps.Map(document.getElementById('map-canvas'),
                                   mapOptions);
 
+    prev_loc.forEach(function(location, idx){
 
+	    var marker = new google.maps.Marker({
+	          position: {lat: location[0], lng: location[1]},
+	          map: map,
+	          title: idx + ''
+	        });
+    })
     var bhatti = [
         new google.maps.LatLng(27.6862276, 85.31708142),
         new google.maps.LatLng(27.68634161, 85.31862638),
@@ -92,9 +148,12 @@ function initialize() {
 
 	    //lat and lng is available in e object
 	    var latLng = e.latLng;
-	    console.log(latLng.lat(), latLng.lng())
 	    str = latLng.lat() +', '+ latLng.lng()
+	    arr = [latLng.lat(), latLng.lng()]
 	    document.getElementById('info').innerHTML = str
+	    console.log(str)
+	    locations.push(arr)
+	    console.log(arr)
 
 	});
 }
