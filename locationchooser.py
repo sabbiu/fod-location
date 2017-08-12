@@ -101,7 +101,6 @@ def location_in(model, location):
 			else:
 				selected = 'latLeft'
 		print(latdiff, lngdiff)
-	print(selected)
 
 	if selected == 'latLeft' or selected == 'lngLeft':
 		if selected == 'latLeft':
@@ -113,7 +112,7 @@ def location_in(model, location):
 		while low != high:
 			mid = math.ceil((low + high)/2)
 			print (mid)
-			if model[selected][mid][0] > lat:
+			if model[selected][mid][0] > value:
 				high = mid - 1
 			else:
 				low = mid
@@ -135,12 +134,22 @@ def location_in(model, location):
 				high = mid
 		index = low
 
-	print (index)
-	print (model[selected])
+	# print(selected)
+	# print (index)
+	# print (model[selected])
+	filtered_hotels = []
+	if selected == 'latRight':
+		for item in model[selected][index:]:
+			print ( item[1] )
+			print ( model['minmax'][item[1]]['min'][0] )	
+			print ( model['minmax'][item[1]]['min'][1] )	
+			print ( model['minmax'][item[1]]['max'][0] )	
+			print ( model['minmax'][item[1]]['min'][1] )
 
-	
+			if model['minmax'][item[1]]['min'][0] < lat and model['minmax'][item[1]]['min'][1] < lng and model['minmax'][item[1]]['max'][1] > lng:
+				filtered_hotels.append(item[1])
 
-	
+	selected_hotels = filtered_hotels
 
 	return selected_hotels
 
@@ -156,6 +165,9 @@ data = {
 }
 model = model_creation(data)
 location = [27.6848595,85.3200855]
+location = [27.672785, 85.311146]
+location = [27.690083, 85.312722]
+location = [27.685835536199388, 85.31853675842285]
 selected_hotels = location_in(model, location)
 print (selected_hotels)
 
